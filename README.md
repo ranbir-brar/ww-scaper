@@ -30,8 +30,6 @@ A powerful Python-based scraper and React dashboard to visualize and filter job 
 
 ---
 
-s
-
 ## Installation
 
 1. **Prerequisites**
