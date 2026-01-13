@@ -159,7 +159,11 @@ function App() {
       <header className="sticky top-0 z-50 glass-panel border-b-0">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between gap-6">
-            <NavLink to="/" className="flex items-center gap-3 group">
+            <NavLink
+              to="/"
+              className="flex items-center gap-3 group"
+              onClick={clearAllFilters}
+            >
               <span className="text-xl font-bold tracking-tight text-white group-hover:text-[var(--color-primary)] transition-colors font-display">
                 WW<span className="text-[var(--color-primary)]">.Explorer</span>
               </span>
