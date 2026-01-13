@@ -21,25 +21,16 @@ export default function MetricsCards({ jobs, totalJobs }) {
       (j) => parseFloat(j.appsPerOpening) < 5
     ).length;
 
-    const locationCounts = {};
-    jobs.forEach((j) => {
-      locationCounts[j.city] = (locationCounts[j.city] || 0) + 1;
-    });
-    const topLocation = Object.entries(locationCounts).sort(
-      (a, b) => b[1] - a[1]
-    )[0];
-
-    return { avgSalary, closingSoon, lowCompetition, topLocation };
+    return { avgSalary, closingSoon, lowCompetition };
   }, [jobs]);
 
   const cards = [
     {
-      label: "Total Jobs",
+      label: "Jobs Found",
       value: jobs.length,
-      subtext: `of ${totalJobs} total`,
       icon: (
         <svg
-          className="w-6 h-6"
+          className="w-5 h-5 text-[var(--color-primary)]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -52,15 +43,14 @@ export default function MetricsCards({ jobs, totalJobs }) {
           />
         </svg>
       ),
-      color: "var(--color-accent-blue)",
+      glow: "rgba(212, 255, 0, 0.1)",
     },
     {
-      label: "Avg Salary",
-      value: metrics.avgSalary ? `$${metrics.avgSalary}/hr` : "N/A",
-      subtext: "hourly rate",
+      label: "Avg Rate/Hr",
+      value: metrics.avgSalary ? `$${metrics.avgSalary}` : "--",
       icon: (
         <svg
-          className="w-6 h-6"
+          className="w-5 h-5 text-emerald-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -73,15 +63,14 @@ export default function MetricsCards({ jobs, totalJobs }) {
           />
         </svg>
       ),
-      color: "var(--color-accent-emerald)",
+      glow: "rgba(52, 211, 153, 0.1)",
     },
     {
       label: "Closing Soon",
       value: metrics.closingSoon,
-      subtext: "within 7 days",
       icon: (
         <svg
-          className="w-6 h-6"
+          className="w-5 h-5 text-amber-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -94,15 +83,14 @@ export default function MetricsCards({ jobs, totalJobs }) {
           />
         </svg>
       ),
-      color: "var(--color-accent-amber)",
+      glow: "rgba(251, 191, 36, 0.1)",
     },
     {
       label: "Low Competition",
       value: metrics.lowCompetition,
-      subtext: "<5 apps/opening",
       icon: (
         <svg
-          className="w-6 h-6"
+          className="w-5 h-5 text-blue-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -115,61 +103,33 @@ export default function MetricsCards({ jobs, totalJobs }) {
           />
         </svg>
       ),
-      color: "var(--color-accent-rose)",
-    },
-    {
-      label: "Top Location",
-      value: metrics.topLocation ? metrics.topLocation[0] : "N/A",
-      subtext: metrics.topLocation ? `${metrics.topLocation[1]} jobs` : "",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-      ),
-      color: "var(--color-accent-blue)",
+      glow: "rgba(96, 165, 250, 0.1)",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {cards.map((card, i) => (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-enter delay-1">
+      {cards.map((card) => (
         <div
           key={card.label}
-          className="metric-card animate-fade-in"
-          style={{ animationDelay: `${i * 0.1}s` }}
+          className="bg-[var(--bg-surface)] border border-[var(--border-dim)] rounded-xl p-5 hover:border-[var(--border-highlight)] transition-colors group relative overflow-hidden"
         >
-          <div className="flex items-start justify-between mb-3">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: `${card.color}20`, color: card.color }}
-            >
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+            style={{
+              background: `radial-gradient(circle at center, ${card.glow}, transparent 70%)`,
+            }}
+          />
+          <div className="relative flex items-center justify-between mb-2">
+            <span className="text-[var(--text-muted)] text-sm font-medium">
+              {card.label}
+            </span>
+            <div className="p-2 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[var(--border-dim)]">
               {card.icon}
             </div>
           </div>
-          <div className="text-2xl font-bold text-[var(--color-text-primary)]">
+          <div className="relative text-2xl font-bold font-display tracking-tight text-[var(--text-main)]">
             {card.value}
-          </div>
-          <div className="text-xs text-[var(--color-text-muted)] mt-1">
-            {card.label}
-          </div>
-          <div className="text-xs text-[var(--color-text-muted)]">
-            {card.subtext}
           </div>
         </div>
       ))}

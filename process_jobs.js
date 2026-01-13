@@ -3,6 +3,13 @@ const path = require("path");
 
 const RAW_DATA_PATH = path.join(__dirname, "jobs.json");
 const OUTPUT_PATH = path.join(__dirname, "processed_jobs.json");
+const DASHBOARD_PATH = path.join(
+  __dirname,
+  "job-dashboard",
+  "src",
+  "data",
+  "jobs.json"
+);
 
 const SKILLS_TAXONOMY = {
   languages: [
@@ -21,8 +28,7 @@ const SKILLS_TAXONOMY = {
     "HTML",
     "CSS",
     "SQL",
-    "R",
-    "Matlab",
+    "MATLAB",
   ],
   frameworks: [
     "React",
@@ -32,7 +38,8 @@ const SKILLS_TAXONOMY = {
     "Express",
     "Django",
     "Flask",
-    "Spring",
+    "Spring Boot",
+    "Spring Framework",
     "ASP.NET",
     "Rails",
     "Next.js",
@@ -154,6 +161,26 @@ function extractSkills(text, taxonomy) {
   if (normalizedText.includes("react.js") || normalizedText.includes("reactjs"))
     skills.add("React");
 
+  if (
+    /\br\b/.test(normalizedText) &&
+    (normalizedText.includes("r programming") ||
+      normalizedText.includes("r language") ||
+      normalizedText.includes("rstudio") ||
+      /\br\s+and\s+python\b/.test(normalizedText) ||
+      /\bpython\s+and\s+r\b/.test(normalizedText))
+  ) {
+    skills.add("R");
+  }
+
+  if (
+    normalizedText.includes("spring boot") ||
+    normalizedText.includes("spring framework") ||
+    normalizedText.includes("spring mvc") ||
+    normalizedText.includes("springframework")
+  ) {
+    skills.add("Spring");
+  }
+
   return Array.from(skills);
 }
 
@@ -263,6 +290,14 @@ function processJobs() {
     fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2));
     console.log(`Successfully processed ${processedJobs.length} jobs.`);
     console.log(`Output saved to ${OUTPUT_PATH}`);
+
+    try {
+      fs.mkdirSync(path.dirname(DASHBOARD_PATH), { recursive: true });
+      fs.copyFileSync(OUTPUT_PATH, DASHBOARD_PATH);
+      console.log(`Copied to ${DASHBOARD_PATH}`);
+    } catch (copyError) {
+      console.log(`Note: Could not copy to dashboard: ${copyError.message}`);
+    }
   } catch (error) {
     console.error("Error processing jobs:", error);
   }

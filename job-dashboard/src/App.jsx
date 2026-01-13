@@ -1,19 +1,14 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { Routes, Route, NavLink, useSearchParams } from "react-router-dom";
+import { useState, useMemo, useCallback } from "react";
 import debounce from "lodash/debounce";
 import jobData from "./data/jobs.json";
 
-import FilterPanel from "./components/FilterPanel";
-import JobList from "./components/JobList";
-import MetricsCards from "./components/MetricsCards";
-import SkillsChart from "./components/SkillsChart";
-import JobMap from "./components/JobMap";
-import SearchBar from "./components/SearchBar";
-import SortDropdown from "./components/SortDropdown";
+import JobsBrowser from "./pages/JobsBrowser";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 
 function App() {
-  const [jobs] = useState(jobData.jobs);
+  const [jobs] = useState(jobData.jobs || []);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("deadline");
   const [filters, setFilters] = useState({
     salaryMin: 0,
     salaryMax: 100,
@@ -90,31 +85,10 @@ function App() {
       result = result.filter((job) => new Date(job.deadline) <= monthFromNow);
     }
 
-    switch (sortBy) {
-      case "deadline":
-        result.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-        break;
-      case "salary":
-        result.sort((a, b) => {
-          const salaryA = a.salary?.max || 0;
-          const salaryB = b.salary?.max || 0;
-          return salaryB - salaryA;
-        });
-        break;
-      case "competition":
-        result.sort(
-          (a, b) => parseFloat(a.appsPerOpening) - parseFloat(b.appsPerOpening)
-        );
-        break;
-      case "alphabetical":
-        result.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      default:
-        break;
-    }
+    result.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
     return result;
-  }, [jobs, searchQuery, filters, sortBy]);
+  }, [jobs, searchQuery, filters]);
 
   const allSkills = useMemo(() => {
     const skillCount = {};
@@ -154,14 +128,14 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-50 bg-[var(--color-bg-primary)]/80 backdrop-blur-xl border-b border-[var(--color-border)]">
-        <div className="max-w-[1920px] mx-auto px-6 py-4">
+    <div className="min-h-screen font-sans">
+      <header className="sticky top-0 z-50 glass-panel border-b-0">
+        <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent-blue)] to-[var(--color-accent-emerald)] flex items-center justify-center">
+            <NavLink to="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center shadow-[0_0_15px_rgba(212,255,0,0.3)] transition-transform group-hover:scale-110">
                 <svg
-                  className="w-6 h-6 text-white"
+                  className="w-6 h-6 text-black"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -169,63 +143,74 @@ function App() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    strokeWidth={2.5}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
                   />
                 </svg>
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-[var(--color-text-primary)]">
-                  WaterlooWorks Explorer
-                </h1>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  Find your next co-op opportunity
-                </p>
-              </div>
-            </div>
-            <div className="flex-1 max-w-2xl">
-              <SearchBar onSearch={handleSearchChange} />
-            </div>
-            <div className="flex items-center gap-4">
-              <SortDropdown value={sortBy} onChange={setSortBy} />
-            </div>
+              <span className="text-xl font-bold tracking-tight text-white group-hover:text-[var(--color-primary)] transition-colors font-display">
+                WW<span className="text-[var(--color-primary)]">.Explorer</span>
+              </span>
+            </NavLink>
+
+            <nav className="flex items-center gap-2 p-1 rounded-full border border-[var(--border-dim)] bg-[rgba(255,255,255,0.03)]">
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `px-5 py-2 rounded-full text-sm font-bold transition-all ${
+                    isActive
+                      ? "bg-[var(--color-primary)] text-black shadow-lg shadow-[rgba(212,255,0,0.2)]"
+                      : "text-[var(--text-muted)] hover:text-white"
+                  }`
+                }
+              >
+                Jobs
+              </NavLink>
+              <NavLink
+                to="/analytics"
+                className={({ isActive }) =>
+                  `px-5 py-2 rounded-full text-sm font-bold transition-all ${
+                    isActive
+                      ? "bg-[var(--color-primary)] text-black shadow-lg shadow-[rgba(212,255,0,0.2)]"
+                      : "text-[var(--text-muted)] hover:text-white"
+                  }`
+                }
+              >
+                Analytics
+              </NavLink>
+            </nav>
           </div>
         </div>
       </header>
 
-      <main className="max-w-[1920px] mx-auto px-6 py-6">
-        <MetricsCards jobs={filteredJobs} totalJobs={jobs.length} />
-
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-6">
-          <aside className="lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-120px)] overflow-y-auto">
-            <FilterPanel
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <JobsBrowser
+              jobs={filteredJobs}
+              totalJobs={jobs.length}
+              searchQuery={searchQuery}
+              onSearchChange={handleSearchChange}
               filters={filters}
               onFilterChange={handleFilterChange}
-              onClearAll={clearAllFilters}
+              onClearFilters={clearAllFilters}
               allSkills={allSkills}
               allLocations={allLocations}
-              filteredCount={filteredJobs.length}
-              totalCount={jobs.length}
             />
-          </aside>
-
-          <section>
-            <JobList jobs={filteredJobs} searchQuery={searchQuery} />
-          </section>
-
-          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <SkillsChart
-              skills={allSkills}
-              onSkillClick={(skill) => {
-                if (!filters.skills.includes(skill)) {
-                  handleFilterChange({ skills: [...filters.skills, skill] });
-                }
-              }}
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <AnalyticsDashboard
+              jobs={filteredJobs}
+              allSkills={allSkills}
+              allLocations={allLocations}
             />
-            <JobMap jobs={filteredJobs} />
-          </aside>
-        </div>
-      </main>
+          }
+        />
+      </Routes>
     </div>
   );
 }
