@@ -54,7 +54,7 @@ export default function JobDetailModal({ job, onClose }) {
                 Location
               </p>
               <p className="text-base font-medium text-[var(--text-main)] flex items-center gap-2">
-                <span className="text-xl">📍</span> {job.city}
+                {job.city}
               </p>
             </div>
             <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-5 border border-[var(--border-dim)]">
@@ -62,7 +62,7 @@ export default function JobDetailModal({ job, onClose }) {
                 Compensation
               </p>
               <p className="text-base font-medium text-[var(--text-main)] flex items-center gap-2">
-                <span className="text-xl">💵</span>{" "}
+                {" "}
                 {job.salary
                   ? `$${job.salary.min}-${job.salary.max}/hr`
                   : "Not specified"}
@@ -73,7 +73,7 @@ export default function JobDetailModal({ job, onClose }) {
                 Duration
               </p>
               <p className="text-base font-medium text-[var(--text-main)] flex items-center gap-2">
-                <span className="text-xl">⏱️</span> {job.duration}
+                {job.duration}
               </p>
             </div>
             <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-5 border border-[var(--border-dim)]">
@@ -81,7 +81,7 @@ export default function JobDetailModal({ job, onClose }) {
                 Deadline
               </p>
               <p className="text-base font-medium text-[var(--text-main)] flex items-center gap-2">
-                <span className="text-xl">📅</span> {formatDate(job.deadline)}
+                {formatDate(job.deadline)}
               </p>
             </div>
           </div>
@@ -142,16 +142,19 @@ export default function JobDetailModal({ job, onClose }) {
           </div>
         </div>
 
-        <div className="border-t border-[var(--border-dim)] p-6 bg-[var(--bg-surface)] flex gap-4">
+        <div className="border-t border-[var(--border-dim)] p-6 bg-[var(--bg-surface)] flex gap-4 items-center">
           <button
             onClick={onClose}
             className="btn-secondary flex-1 py-3 text-base"
           >
             Close Details
           </button>
-          <button className="btn-primary flex-1 py-3 text-base shadow-[0_0_30px_rgba(212,255,0,0.15)]">
-            View on WaterlooWorks
-          </button>
+          <div className="flex-1 py-3 text-base text-center font-mono text-[var(--text-muted)] border border-[var(--border-dim)] rounded-lg bg-[rgba(255,255,255,0.03)] selection:bg-[var(--color-primary)] selection:text-black">
+            Job ID:{" "}
+            <span className="text-[var(--text-main)] font-bold select-all">
+              {job.id}
+            </span>
+          </div>
         </div>
       </div>
     </div>

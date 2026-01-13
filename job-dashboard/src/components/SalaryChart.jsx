@@ -1,15 +1,17 @@
 import { useMemo } from "react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
-export default function SalaryChart({ jobs }) {
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip);
+
+export default function SalaryChart({ jobs, onBarClick }) {
   const data = useMemo(() => {
     const ranges = {
       "$0-15": 0,
@@ -18,12 +20,13 @@ export default function SalaryChart({ jobs }) {
       "$25-30": 0,
       "$30-40": 0,
       "$40+": 0,
-      "Not specified": 0,
     };
+
+    let notSpecifiedCount = 0;
 
     jobs.forEach((job) => {
       if (!job.salary) {
-        ranges["Not specified"]++;
+        notSpecifiedCount++;
       } else {
         const avg = job.salary.avg;
         if (avg < 15) ranges["$0-15"]++;
@@ -35,52 +38,107 @@ export default function SalaryChart({ jobs }) {
       }
     });
 
-    return Object.entries(ranges).map(([range, count]) => ({ range, count }));
+    return {
+      labels: Object.keys(ranges),
+      datasets: [
+        {
+          label: "Number of Jobs",
+          data: Object.values(ranges),
+          backgroundColor: Object.keys(ranges).map((_, i) =>
+            // Gradient-like effect manually applied to bars
+            i === 0
+              ? "rgba(212, 255, 0, 0.3)"
+              : i === 1
+              ? "rgba(212, 255, 0, 0.5)"
+              : i === 2
+              ? "rgba(212, 255, 0, 0.7)"
+              : i === 3
+              ? "#D4FF00"
+              : i === 4
+              ? "#AECC00"
+              : "#8C9900"
+          ),
+          borderRadius: 4,
+          borderWidth: 0,
+          hoverBackgroundColor: "#FFFFFF",
+        },
+      ],
+    };
   }, [jobs]);
 
-  const colors = [
-    "#fee2e2",
-    "#fef3c7",
-    "#dcfce7",
-    "#d1fae5",
-    "#99f6e4",
-    "#5eead4",
-    "#e2e8f0",
-  ];
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(5, 5, 5, 0.9)",
+        titleColor: "#D4FF00",
+        bodyColor: "#FFFFFF",
+        borderColor: "#222",
+        borderWidth: 1,
+        padding: 12,
+        titleFont: {
+          family: "Unbounded",
+          size: 14,
+        },
+        bodyFont: {
+          family: "Mulish",
+          size: 13,
+        },
+        displayColors: false,
+        callbacks: {
+          label: (context) => `${context.raw} jobs`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: "#888",
+          font: {
+            family: "Mulish",
+          },
+        },
+      },
+      y: {
+        grid: {
+          color: "rgba(255, 255, 255, 0.05)",
+        },
+        ticks: {
+          color: "#888",
+          font: {
+            family: "Mulish",
+          },
+          stepSize: 1,
+        },
+      },
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0 && onBarClick) {
+        const index = elements[0].index;
+        const range = data.labels[index];
+        onBarClick(range);
+      }
+    },
+    onHover: (event, elements) => {
+      event.native.target.style.cursor =
+        elements.length > 0 ? "pointer" : "default";
+    },
+    animation: {
+      duration: 800,
+      easing: "easeOutQuart",
+    },
+  };
 
   return (
-    <div className="h-80">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data}
-          margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
-        >
-          <XAxis
-            dataKey="range"
-            tick={{ fill: "var(--color-text-secondary)", fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fill: "var(--color-text-muted)", fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            contentStyle={{
-              background: "white",
-              border: "1px solid var(--color-border)",
-              borderRadius: "8px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            }}
-          />
-          <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-            {data.map((entry, index) => (
-              <Cell key={entry.range} fill={colors[index] || "#0f766e"} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="h-[300px] w-full mt-4">
+      <Bar options={options} data={data} />
     </div>
   );
 }

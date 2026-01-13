@@ -1,84 +1,117 @@
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
-const COLORS = {
-  Python: "#3776ab",
-  JavaScript: "#f7df1e",
-  TypeScript: "#3178c6",
-  Java: "#ed8b00",
-  React: "#61dafb",
-  SQL: "#336791",
-  Git: "#f05032",
-  Docker: "#2496ed",
-  AWS: "#ff9900",
-  Azure: "#0078d4",
-  "Node.js": "#339933",
-  HTML: "#e34f26",
-  CSS: "#1572b6",
-  default: "#0f766e",
-};
-
-const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white border border-[var(--color-border)] rounded-lg px-3 py-2 shadow-lg">
-        <p className="text-sm font-medium">{payload[0].payload.name}</p>
-        <p className="text-xs text-[var(--color-text-muted)]">
-          {payload[0].value} jobs
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function SkillsChart({ skills, onSkillClick }) {
-  const data = skills.map(([name, count]) => ({ name, count }));
+  const topSkills = skills.slice(0, 15);
+
+  const data = {
+    labels: topSkills.map(([name]) => name),
+    datasets: [
+      {
+        label: "Job Count",
+        data: topSkills.map(([, count]) => count),
+        backgroundColor: topSkills.map((_, i) =>
+          i === 0
+            ? "#D4FF00"
+            : i === 1
+            ? "#C1E600"
+            : i === 2
+            ? "#AECC00"
+            : "rgba(212, 255, 0, 0.3)"
+        ),
+        borderColor: "#D4FF00",
+        borderWidth: 1,
+        borderRadius: 4,
+        hoverBackgroundColor: "#D4FF00",
+        hoverBorderColor: "#FFFFFF",
+      },
+    ],
+  };
+
+  const options = {
+    indexAxis: "y", // Horizontal bar chart
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(5, 5, 5, 0.9)",
+        titleColor: "#D4FF00",
+        bodyColor: "#FFFFFF",
+        borderColor: "#222",
+        borderWidth: 1,
+        padding: 12,
+        titleFont: {
+          family: "Unbounded",
+          size: 14,
+        },
+        bodyFont: {
+          family: "Mulish",
+          size: 13,
+        },
+        displayColors: false,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: "rgba(255, 255, 255, 0.05)",
+        },
+        ticks: {
+          color: "#888",
+          font: {
+            family: "Mulish",
+          },
+        },
+      },
+      y: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: "#FFFFFF",
+          font: {
+            family: "Mulish",
+            weight: "600",
+          },
+        },
+      },
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0 && onSkillClick) {
+        const index = elements[0].index;
+        const skillName = data.labels[index];
+        onSkillClick(skillName);
+      }
+    },
+    animation: {
+      duration: 1000,
+      easing: "easeOutQuart",
+    },
+  };
 
   return (
-    <div className="h-80">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data}
-          layout="vertical"
-          margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
-        >
-          <XAxis type="number" hide />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={90}
-            tick={{ fill: "var(--color-text-secondary)", fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ fill: "rgba(15, 118, 110, 0.05)" }}
-          />
-          <Bar
-            dataKey="count"
-            radius={[0, 4, 4, 0]}
-            cursor="pointer"
-            onClick={(data) => onSkillClick && onSkillClick(data.name)}
-          >
-            {data.map((entry) => (
-              <Cell
-                key={entry.name}
-                fill={COLORS[entry.name] || COLORS.default}
-                fillOpacity={0.85}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="h-[500px] w-full p-4">
+      <Bar options={options} data={data} />
     </div>
   );
 }

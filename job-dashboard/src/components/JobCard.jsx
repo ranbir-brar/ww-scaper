@@ -37,7 +37,7 @@ function JobCard({ job, searchQuery, onClick }) {
             {highlightText(job.organization)}
           </p>
           <p className="text-sm text-[var(--color-text-muted)] mt-1 flex items-center gap-1">
-            <span>📍</span> {job.city}
+            <span></span> {job.city}
           </p>
         </div>
 
@@ -55,10 +55,10 @@ function JobCard({ job, searchQuery, onClick }) {
       </div>
 
       <div className="flex items-center gap-3 mt-4 text-sm text-[var(--color-text-muted)]">
-        <span>⏱️ {job.duration}</span>
+        <span>{job.duration}</span>
         <span>•</span>
         <span className={isUrgent ? "deadline-urgent" : ""}>
-          📅{" "}
+          {" "}
           {isUrgent ? `${daysUntilDeadline}d left` : formatDate(job.deadline)}
         </span>
         <span>•</span>

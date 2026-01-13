@@ -1,4 +1,4 @@
-import { Routes, Route, NavLink, useSearchParams } from "react-router-dom";
+import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
 import { useState, useMemo, useCallback } from "react";
 import debounce from "lodash/debounce";
 import jobData from "./data/jobs.json";
@@ -7,6 +7,7 @@ import JobsBrowser from "./pages/JobsBrowser";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 
 function App() {
+  const navigate = useNavigate();
   const [jobs] = useState(jobData.jobs || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
@@ -127,27 +128,38 @@ function App() {
     setSearchQuery("");
   }, []);
 
+  const handleAnalyticsFilter = useCallback(
+    (filterType, value) => {
+      // Reset other filters first for clarity, or merge? Let's merge but clear conflict.
+      if (filterType === "skill") {
+        setFilters((prev) => ({ ...prev, skills: [value] }));
+      } else if (filterType === "salary") {
+        // value is like "$15-20"
+        let min = 0;
+        let max = 100;
+        if (value.includes("+")) {
+          min = parseInt(value.replace("$", "").replace("+", ""));
+          max = 100;
+        } else if (value.includes("-")) {
+          const parts = value.replace("$", "").split("-");
+          min = parseInt(parts[0]);
+          max = parseInt(parts[1]);
+        }
+        setFilters((prev) => ({ ...prev, salaryMin: min, salaryMax: max }));
+      } else if (filterType === "location") {
+        setFilters((prev) => ({ ...prev, locations: [value] }));
+      }
+      navigate("/");
+    },
+    [navigate]
+  );
+
   return (
     <div className="min-h-screen font-sans">
       <header className="sticky top-0 z-50 glass-panel border-b-0">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between gap-6">
             <NavLink to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center shadow-[0_0_15px_rgba(212,255,0,0.3)] transition-transform group-hover:scale-110">
-                <svg
-                  className="w-6 h-6 text-black"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </div>
               <span className="text-xl font-bold tracking-tight text-white group-hover:text-[var(--color-primary)] transition-colors font-display">
                 WW<span className="text-[var(--color-primary)]">.Explorer</span>
               </span>
@@ -207,6 +219,7 @@ function App() {
               jobs={filteredJobs}
               allSkills={allSkills}
               allLocations={allLocations}
+              onFilterApply={handleAnalyticsFilter}
             />
           }
         />

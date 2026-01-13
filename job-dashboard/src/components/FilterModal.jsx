@@ -96,21 +96,56 @@ export default function FilterModal({
           <section>
             <h3 className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--color-primary)]"></span>
-              Job Level
+              Region
             </h3>
-            <div className="flex flex-wrap gap-2">
-              {levels.map((level) => (
-                <button
-                  key={level}
-                  onClick={() => handleLevelToggle(level)}
-                  className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-all ${
-                    filters.levels.includes(level)
-                      ? "bg-[rgba(212,255,0,0.1)] text-[var(--color-primary)] border-[var(--color-primary)] shadow-[0_0_15px_rgba(212,255,0,0.1)]"
-                      : "bg-transparent text-[var(--text-muted)] border-[var(--border-dim)] hover:border-[var(--text-muted)]"
-                  }`}
+            <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+              {allLocations.map(([location, count]) => (
+                <label
+                  key={location}
+                  className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[rgba(255,255,255,0.03)] transition-colors group"
                 >
-                  {level}
-                </button>
+                  <div
+                    className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                      filters.locations.includes(location)
+                        ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
+                        : "border-[var(--border-dim)] group-hover:border-[var(--text-muted)]"
+                    }`}
+                  >
+                    {filters.locations.includes(location) && (
+                      <svg
+                        className="w-3 h-3 text-black"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={3}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span
+                    className={`text-sm ${
+                      filters.locations.includes(location)
+                        ? "text-[var(--text-main)] font-medium"
+                        : "text-[var(--text-muted)]"
+                    }`}
+                  >
+                    {location}
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)] ml-auto">
+                    {count}
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={filters.locations.includes(location)}
+                    onChange={() => handleLocationToggle(location)}
+                  />
+                </label>
               ))}
             </div>
           </section>
@@ -118,40 +153,27 @@ export default function FilterModal({
           <section>
             <h3 className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--color-primary)]"></span>
-              Deadlines
+              Max Apps / Opening
             </h3>
-            <div className="space-y-1">
-              {[
-                { value: "all", label: "All deadlines" },
-                { value: "week", label: "Due this week" },
-                { value: "month", label: "Due this month" },
-              ].map((opt) => (
-                <label
-                  key={opt.value}
-                  className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-[rgba(255,255,255,0.03)] transition-colors group"
-                >
-                  <div
-                    className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
-                      filters.deadlineFilter === opt.value
-                        ? "border-[var(--color-primary)]"
-                        : "border-[var(--text-muted)] group-hover:border-[var(--text-main)]"
-                    }`}
-                  >
-                    {filters.deadlineFilter === opt.value && (
-                      <div className="w-2 h-2 rounded-full bg-[var(--color-primary)]" />
-                    )}
-                  </div>
-                  <span
-                    className={`text-sm font-medium transition-colors ${
-                      filters.deadlineFilter === opt.value
-                        ? "text-[var(--text-main)]"
-                        : "text-[var(--text-muted)]"
-                    }`}
-                  >
-                    {opt.label}
-                  </span>
-                </label>
-              ))}
+            <div className="bg-[rgba(255,255,255,0.03)] p-4 rounded-xl border border-[var(--border-dim)]">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-mono text-[var(--text-muted)]">
+                  Up to {filters.maxCompetition}
+                </span>
+                <span className="text-xs bg-[rgba(212,255,0,0.1)] text-[var(--color-primary)] px-2 py-0.5 rounded-full">
+                  Less Competition
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={filters.maxCompetition}
+                onChange={(e) =>
+                  onFilterChange({ maxCompetition: parseInt(e.target.value) })
+                }
+                className="w-full h-1 bg-[var(--border-dim)] rounded-full appearance-none cursor-pointer accent-[var(--color-primary)]"
+              />
             </div>
           </section>
 

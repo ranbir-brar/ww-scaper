@@ -102,7 +102,7 @@ def scrape_jobs_from_page(page, existing_ids):
                             base_job['application_info'] = app_info
     
                     except:
-                        print(f"    ⚠️ Timeout waiting for details modal for job {job_id}")
+                        print(f"    Timeout waiting for details modal for job {job_id}")
                         base_job['error'] = 'details_timeout'
     
                     close_btns = page.query_selector_all('button:has(i:text("close"))')
@@ -118,10 +118,10 @@ def scrape_jobs_from_page(page, existing_ids):
                         try:
                             page.wait_for_selector('table.data-viewer-table', timeout=5000)
                         except:
-                            print("    ⚠️ Warning: Table didn't reappear immediately after closing")
+                            print("    Warning: Table didn't reappear immediately after closing")
                         time.sleep(1.5)
                     else:
-                        print("    ❌ Could not find a visible close button") 
+                        print("    Could not find a visible close button") 
             
             jobs.append(base_job)
             
@@ -172,6 +172,7 @@ def run():
         existing_ids = set(j['id'] for j in all_jobs if 'id' in j)
 
         page_num = 1
+        consecutive_no_new_pages = 0
 
         while True:
             print(f"Scraping page {page_num}...")
@@ -185,6 +186,15 @@ def run():
                     count_new += 1
             
             print(f"  Found {len(new_jobs_on_page)} jobs on this page. Added {count_new} new. (Total: {len(all_jobs)})")
+
+            if count_new == 0:
+                consecutive_no_new_pages += 1
+                print(f"  No new jobs on this page. ({consecutive_no_new_pages}/3 consecutive empty pages)")
+                if consecutive_no_new_pages >= 3:
+                     print("  Stopping: No new jobs found for 3 consecutive pages.")
+                     break
+            else:
+                consecutive_no_new_pages = 0
 
             with open(JOBS_FILE, 'w', encoding='utf-8') as f:
                 json.dump(all_jobs, f, indent=2, ensure_ascii=False)

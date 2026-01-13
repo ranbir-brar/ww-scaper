@@ -58,6 +58,37 @@ export default function JobsBrowser({
 
       {activeFilterCount > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-4">
+          {(filters.salaryMin > 0 || filters.salaryMax < 100) && (
+            <span className="filter-chip">
+              ${filters.salaryMin}-${filters.salaryMax}/hr
+              <button
+                onClick={() =>
+                  onFilterChange({
+                    salaryMin: 0,
+                    salaryMax: 100,
+                  })
+                }
+              >
+                ×
+              </button>
+            </span>
+          )}
+
+          {filters.maxCompetition < 50 && (
+            <span className="filter-chip">
+              &lt;{filters.maxCompetition} apps
+              <button
+                onClick={() =>
+                  onFilterChange({
+                    maxCompetition: 50,
+                  })
+                }
+              >
+                ×
+              </button>
+            </span>
+          )}
+
           {filters.skills.map((skill) => (
             <span key={skill} className="filter-chip">
               {skill}
@@ -74,7 +105,7 @@ export default function JobsBrowser({
           ))}
           {filters.locations.map((loc) => (
             <span key={loc} className="filter-chip">
-              📍 {loc}
+              {loc}
               <button
                 onClick={() =>
                   onFilterChange({
@@ -86,23 +117,11 @@ export default function JobsBrowser({
               </button>
             </span>
           ))}
-          {filters.levels.map((lvl) => (
-            <span key={lvl} className="filter-chip">
-              {lvl}
-              <button
-                onClick={() =>
-                  onFilterChange({
-                    levels: filters.levels.filter((l) => l !== lvl),
-                  })
-                }
-              >
-                ×
-              </button>
-            </span>
-          ))}
+          {/* Levels removed as per user request */}
+
           <button
             onClick={onClearFilters}
-            className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)]"
+            className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] cursor-pointer"
           >
             Clear all
           </button>
