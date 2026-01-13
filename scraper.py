@@ -2,7 +2,51 @@ import time
 import random
 import json
 import os
+import subprocess
+import shutil
 from playwright.sync_api import sync_playwright
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DASHBOARD_DATA_PATH = os.path.join(SCRIPT_DIR, 'job-dashboard', 'src', 'data', 'jobs.json')
+PROCESSED_JOBS_PATH = os.path.join(SCRIPT_DIR, 'processed_jobs.json')
+PROCESS_SCRIPT_PATH = os.path.join(SCRIPT_DIR, 'process_jobs.js')
+
+
+def run_post_processing():
+    """Run process_jobs.js and copy output to dashboard."""
+    print("\n--- Post-Scrape Processing ---")
+    
+    if not os.path.exists(PROCESS_SCRIPT_PATH):
+        print(f"Warning: {PROCESS_SCRIPT_PATH} not found. Skipping processing.")
+        return
+    
+    print("Running process_jobs.js...")
+    try:
+        result = subprocess.run(
+            ['node', PROCESS_SCRIPT_PATH],
+            cwd=SCRIPT_DIR,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        if result.returncode == 0:
+            print(result.stdout)
+        else:
+            print(f"Error running process_jobs.js: {result.stderr}")
+            return
+    except subprocess.TimeoutExpired:
+        print("Error: process_jobs.js timed out")
+        return
+    except FileNotFoundError:
+        print("Error: Node.js not found. Please ensure node is installed.")
+        return
+    
+    if os.path.exists(PROCESSED_JOBS_PATH):
+        os.makedirs(os.path.dirname(DASHBOARD_DATA_PATH), exist_ok=True)
+        shutil.copy2(PROCESSED_JOBS_PATH, DASHBOARD_DATA_PATH)
+        print(f"Copied processed data to {DASHBOARD_DATA_PATH}")
+    else:
+        print(f"Warning: {PROCESSED_JOBS_PATH} not found after processing.")
 
 AUTH_FILE = 'ww_session.json'
 JOBS_FILE = 'jobs.json'
@@ -61,7 +105,6 @@ def scrape_jobs_from_page(page, existing_ids):
                         print(f"    ⚠️ Timeout waiting for details modal for job {job_id}")
                         base_job['error'] = 'details_timeout'
     
-                    # Close the modal
                     close_btns = page.query_selector_all('button:has(i:text("close"))')
                     clicked_close = False
                     if close_btns:
@@ -184,8 +227,10 @@ def run():
         print(f"Saved to {JOBS_FILE}")
 
         context.storage_state(path=AUTH_FILE)
+
+        run_post_processing()
         
-        print("\n✅ Scraping Complete!")
+        print("\nScraping Complete!")
         input("Press Enter to close the browser and exit...")
         browser.close()
 
