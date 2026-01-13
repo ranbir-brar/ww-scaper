@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export default function FilterModal({
   filters,
   onFilterChange,
@@ -21,6 +23,63 @@ export default function FilterModal({
       : [...filters.locations, location];
     onFilterChange({ locations: newLocations });
   };
+
+  const [expandedRegions, setExpandedRegions] = useState({
+    Canada: true,
+    USA: true,
+    International: true,
+  });
+
+  const toggleRegion = (region) => {
+    setExpandedRegions((prev) => ({
+      ...prev,
+      [region]: !prev[region],
+    }));
+  };
+
+  const classifyLocation = (city) => {
+    const canadaCities = [
+      "Toronto",
+      "Waterloo",
+      "Vancouver",
+      "Montreal",
+      "Ottawa",
+      "Calgary",
+      "London",
+      "Markham",
+      "Mississauga",
+      "Kitchener",
+      "Burnaby",
+      "Richmond",
+    ];
+    const usaCities = [
+      "New York",
+      "San Francisco",
+      "Seattle",
+      "Austin",
+      "Boston",
+      "Chicago",
+      "Los Angeles",
+      "Palo Alto",
+      "Mountain View",
+      "Sunnyvale",
+    ];
+
+    if (canadaCities.some((c) => city.includes(c))) return "Canada";
+    if (usaCities.some((c) => city.includes(c))) return "USA";
+    return "International";
+  };
+
+  const groupedLocations = {
+    Canada: [],
+    USA: [],
+    International: [],
+  };
+
+  allLocations.forEach(([location, count]) => {
+    const region = classifyLocation(location);
+    groupedLocations[region].push([location, count]);
+  });
 
   const handleLevelToggle = (level) => {
     const newLevels = filters.levels.includes(level)
@@ -98,22 +157,27 @@ export default function FilterModal({
               <span className="w-2 h-2 rounded-full bg-[var(--color-primary)]"></span>
               Region
             </h3>
-            <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
-              {allLocations.map(([location, count]) => (
-                <label
-                  key={location}
-                  className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[rgba(255,255,255,0.03)] transition-colors group"
-                >
+            <div className="max-h-80 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+              {Object.entries(groupedLocations).map(([region, locations]) => {
+                if (locations.length === 0) return null;
+                const isExpanded = expandedRegions[region];
+
+                return (
                   <div
-                    className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                      filters.locations.includes(location)
-                        ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
-                        : "border-[var(--border-dim)] group-hover:border-[var(--text-muted)]"
-                    }`}
+                    key={region}
+                    className="border border-[var(--border-dim)] rounded-lg overflow-hidden"
                   >
-                    {filters.locations.includes(location) && (
+                    <button
+                      onClick={() => toggleRegion(region)}
+                      className="w-full flex items-center justify-between p-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] transition-colors"
+                    >
+                      <span className="font-semibold text-sm text-[var(--text-main)]">
+                        {region}
+                      </span>
                       <svg
-                        className="w-3 h-3 text-black"
+                        className={`w-4 h-4 text-[var(--text-muted)] transition-transform ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -121,32 +185,67 @@ export default function FilterModal({
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
                         />
                       </svg>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="p-2 space-y-1 bg-[rgba(0,0,0,0.2)]">
+                        {locations.map(([location, count]) => (
+                          <label
+                            key={location}
+                            className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[rgba(255,255,255,0.03)] transition-colors group"
+                          >
+                            <div
+                              className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                                filters.locations.includes(location)
+                                  ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
+                                  : "border-[var(--border-dim)] group-hover:border-[var(--text-muted)]"
+                              }`}
+                            >
+                              {filters.locations.includes(location) && (
+                                <svg
+                                  className="w-3 h-3 text-black"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={3}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                            <span
+                              className={`text-sm ${
+                                filters.locations.includes(location)
+                                  ? "text-[var(--text-main)] font-medium"
+                                  : "text-[var(--text-muted)]"
+                              }`}
+                            >
+                              {location}
+                            </span>
+                            <span className="text-xs text-[var(--text-muted)] ml-auto">
+                              {count}
+                            </span>
+                            <input
+                              type="checkbox"
+                              className="hidden"
+                              checked={filters.locations.includes(location)}
+                              onChange={() => handleLocationToggle(location)}
+                            />
+                          </label>
+                        ))}
+                      </div>
                     )}
                   </div>
-                  <span
-                    className={`text-sm ${
-                      filters.locations.includes(location)
-                        ? "text-[var(--text-main)] font-medium"
-                        : "text-[var(--text-muted)]"
-                    }`}
-                  >
-                    {location}
-                  </span>
-                  <span className="text-xs text-[var(--text-muted)] ml-auto">
-                    {count}
-                  </span>
-                  <input
-                    type="checkbox"
-                    className="hidden"
-                    checked={filters.locations.includes(location)}
-                    onChange={() => handleLocationToggle(location)}
-                  />
-                </label>
-              ))}
+                );
+              })}
             </div>
           </section>
 

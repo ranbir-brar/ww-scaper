@@ -19,7 +19,7 @@ export default function JobsBrowser({
   const [selectedJob, setSelectedJob] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
     setCurrentPage(1);
