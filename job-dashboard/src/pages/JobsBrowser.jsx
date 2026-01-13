@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SearchBar from "../components/SearchBar";
 import MetricsCards from "../components/MetricsCards";
 import JobCard from "../components/JobCard";
@@ -18,6 +18,23 @@ export default function JobsBrowser({
 }) {
   const [selectedJob, setSelectedJob] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [jobs]);
+
+  const totalPages = Math.ceil(jobs.length / ITEMS_PER_PAGE);
+  const paginatedJobs = jobs.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const activeFilterCount =
     filters.skills.length +
@@ -133,7 +150,8 @@ export default function JobsBrowser({
       <div className="mt-6">
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-[var(--color-text-muted)]">
-            Showing {jobs.length} of {totalJobs} jobs
+            Showing {paginatedJobs.length} of {totalJobs} jobs (Page{" "}
+            {currentPage} of {totalPages || 1})
           </p>
         </div>
 
@@ -161,7 +179,7 @@ export default function JobsBrowser({
           </div>
         ) : (
           <div className="space-y-3">
-            {jobs.map((job) => (
+            {paginatedJobs.map((job) => (
               <JobCard
                 key={job.id}
                 job={job}
@@ -169,6 +187,28 @@ export default function JobsBrowser({
                 onClick={() => setSelectedJob(job)}
               />
             ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2"
+            >
+              Previous
+            </button>
+            <span className="text-[var(--text-muted)] font-mono text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2"
+            >
+              Next
+            </button>
           </div>
         )}
       </div>
