@@ -25,10 +25,10 @@ export default function FilterModal({
   };
 
   const [expandedRegions, setExpandedRegions] = useState({
-    Canada: true,
-    USA: true,
-    International: true,
-    Unknown: true,
+    Canada: false,
+    USA: false,
+    International: false,
+    Unknown: false,
   });
 
   const toggleRegion = (region) => {
@@ -36,6 +36,24 @@ export default function FilterModal({
       ...prev,
       [region]: !prev[region],
     }));
+  };
+
+  const handleRegionSelect = (e, region, locations) => {
+    e.stopPropagation();
+    const locationNames = locations.map(([loc]) => loc);
+    const allSelected = locationNames.every((loc) =>
+      filters.locations.includes(loc)
+    );
+
+    let newLocations;
+    if (allSelected) {
+      newLocations = filters.locations.filter(
+        (loc) => !locationNames.includes(loc)
+      );
+    } else {
+      newLocations = [...new Set([...filters.locations, ...locationNames])];
+    }
+    onFilterChange({ locations: newLocations });
   };
 
   const classifyLocation = (city) => {
@@ -166,18 +184,62 @@ export default function FilterModal({
                 if (locations.length === 0) return null;
                 const isExpanded = expandedRegions[region];
 
+                const locationNames = locations.map(([l]) => l);
+                const isAllSelected = locationNames.every((l) =>
+                  filters.locations.includes(l)
+                );
+                const isSomeSelected =
+                  !isAllSelected &&
+                  locationNames.some((l) => filters.locations.includes(l));
+
                 return (
                   <div
                     key={region}
                     className="border border-[var(--border-dim)] rounded-lg overflow-hidden"
                   >
-                    <button
+                    <div
+                      className="w-full flex items-center justify-between p-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] transition-colors cursor-pointer"
                       onClick={() => toggleRegion(region)}
-                      className="w-full flex items-center justify-between p-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] transition-colors"
                     >
-                      <span className="font-semibold text-sm text-[var(--text-main)]">
-                        {region}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <div
+                          onClick={(e) =>
+                            handleRegionSelect(e, region, locations)
+                          }
+                          className={`w-5 h-5 rounded border flex items-center justify-center transition-colors z-10 ${
+                            isAllSelected || isSomeSelected
+                              ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
+                              : "border-[var(--text-muted)] hover:border-[var(--text-bright)] bg-[rgba(255,255,255,0.05)]"
+                          }`}
+                        >
+                          {isAllSelected && (
+                            <svg
+                              className="w-3 h-3 text-black"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={3}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
+                          {isSomeSelected && (
+                            <div className="w-2 h-0.5 bg-black rounded-full" />
+                          )}
+                        </div>
+                        <span
+                          className="font-semibold text-sm text-[var(--text-main)] hover:text-[var(--text-bright)] transition-colors"
+                          onClick={(e) =>
+                            handleRegionSelect(e, region, locations)
+                          }
+                        >
+                          {region}
+                        </span>
+                      </div>
                       <svg
                         className={`w-4 h-4 text-[var(--text-muted)] transition-transform ${
                           isExpanded ? "rotate-180" : ""
@@ -193,7 +255,7 @@ export default function FilterModal({
                           d="M19 9l-7 7-7-7"
                         />
                       </svg>
-                    </button>
+                    </div>
 
                     {isExpanded && (
                       <div className="p-2 space-y-1 bg-[rgba(0,0,0,0.2)]">
@@ -203,10 +265,10 @@ export default function FilterModal({
                             className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[rgba(255,255,255,0.03)] transition-colors group"
                           >
                             <div
-                              className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                              className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                                 filters.locations.includes(location)
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
-                                  : "border-[var(--border-dim)] group-hover:border-[var(--text-muted)]"
+                                  : "border-[var(--text-muted)] group-hover:border-[var(--text-bright)] bg-[rgba(255,255,255,0.05)]"
                               }`}
                             >
                               {filters.locations.includes(location) && (
@@ -293,10 +355,10 @@ export default function FilterModal({
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                      className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                         filters.skills.includes(skill)
                           ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
-                          : "border-[var(--border-dim)] group-hover:border-[var(--text-muted)]"
+                          : "border-[var(--text-muted)] group-hover:border-[var(--text-bright)] bg-[rgba(255,255,255,0.05)]"
                       }`}
                     >
                       {filters.skills.includes(skill) && (
