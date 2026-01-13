@@ -4,11 +4,7 @@ A powerful Python-based scraper and React dashboard to visualize and filter job 
 
 ## New Features
 
-### Stunning UI Redesign
-
-- **theme**: "Obsidian & Electric Lime" dark mode aesthetic.
-- **Glass-morphism**: Modern, translucent UI elements with smooth animations.
-- **Responsive**: Fully optimized for desktop and tablet viewing.
+### UI Redesign
 
 ### Interactive Analytics Dashboard
 
@@ -20,8 +16,8 @@ A powerful Python-based scraper and React dashboard to visualize and filter job 
 
 - **Salary Chips**: Filter by pay range with dismissible chips (e.g., `$20-30/hr`).
 - **Region Filter**: Select specific cities/regions.
-- **Competition Filter**: Slider to filter by "Apps Per Opening" (e.g., find hidden gems with <10 applicants).
-- **Smart Search**: Real-time searching by title, company, or skills.
+- **Competition Filter**: Slider to filter by "Apps Per Opening".
+- **Smart Search**: Real time searching by title, company, or skills.
 
 ### Optimized Scraper
 
@@ -73,7 +69,7 @@ cd job-dashboard
 npm run dev
 ```
 
-Open your browser to the local URL (usually `http://localhost:5173`).
+Open your browser to the local URL.
 
 ## Project Structure
 
@@ -82,8 +78,3 @@ Open your browser to the local URL (usually `http://localhost:5173`).
 - `job-dashboard/`: React application (Vite + Tailwind).
   - `src/pages/`: `JobsBrowser` and `AnalyticsDashboard`.
   - `src/components/`: Reusable UI components (`JobCard`, `SalaryChart`, `FilterModal`).
-
-## Notes
-
-- The dashboard uses **Chart.js** for high-performance data visualization.
-- Data is stored locally in `jobs.json`.
