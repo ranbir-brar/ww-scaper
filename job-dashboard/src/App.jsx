@@ -216,7 +216,7 @@ function App() {
           path="/analytics"
           element={
             <AnalyticsDashboard
-              jobs={filteredJobs}
+              jobs={jobs}
               allSkills={allSkills}
               allLocations={allLocations}
               onFilterApply={handleAnalyticsFilter}

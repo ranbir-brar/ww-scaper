@@ -28,6 +28,7 @@ export default function FilterModal({
     Canada: true,
     USA: true,
     International: true,
+    Unknown: true,
   });
 
   const toggleRegion = (region) => {
@@ -38,6 +39,8 @@ export default function FilterModal({
   };
 
   const classifyLocation = (city) => {
+    if (city === "Unknown" || city.includes("Unknown")) return "Unknown";
+
     const canadaCities = [
       "Toronto",
       "Waterloo",
@@ -74,6 +77,7 @@ export default function FilterModal({
     Canada: [],
     USA: [],
     International: [],
+    Unknown: [],
   };
 
   allLocations.forEach(([location, count]) => {
