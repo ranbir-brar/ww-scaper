@@ -1,5 +1,8 @@
-*.json
 __pycache__/
 *.spec
 /job-dashboard/public/demo
 node_modules/
+processed_jobs.json
+job-dashboard/src/data/jobs.json
+jobs.json
+ww_session.json
