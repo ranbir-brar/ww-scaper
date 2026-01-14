@@ -63,7 +63,8 @@ function App() {
 
     if (filters.salaryMin > 0 || filters.salaryMax < 100) {
       result = result.filter((job) => {
-        if (!job.salary) return filters.salaryMin === 0;
+        // Always show TBD salary jobs when filtering by salary
+        if (!job.salary) return true;
         return (
           job.salary.min >= filters.salaryMin &&
           job.salary.max <= filters.salaryMax
