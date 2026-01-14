@@ -84,10 +84,10 @@ def scrape_jobs_from_page(page, existing_ids):
                      print(f"    Skipping job {job_id}: {base_job['title']} (already scraped)")
                 else:
                     print(f"    Clicking job {job_id}: {base_job['title']}...")
-                    time.sleep(0.5)
+                    time.sleep(0.15)
                     title_link.click()
                     
-                    time.sleep(1.0)
+                    time.sleep(0.3)
                     try:
                         page.wait_for_selector('h4:has-text("Job Posting Information")', timeout=5000)
                         
@@ -119,7 +119,7 @@ def scrape_jobs_from_page(page, existing_ids):
                             page.wait_for_selector('table.data-viewer-table', timeout=5000)
                         except:
                             print("    Warning: Table didn't reappear immediately after closing")
-                        time.sleep(1.5)
+                        time.sleep(0.4)
                     else:
                         print("    Could not find a visible close button") 
             
@@ -158,7 +158,7 @@ def run():
 
         print("Waiting for job table to load...")
         page.wait_for_selector('table.data-viewer-table', timeout=30000)
-        time.sleep(2)
+        time.sleep(0.5)
         
         all_jobs = []
         if os.path.exists(JOBS_FILE):
@@ -205,7 +205,7 @@ def run():
                 break
             
             pagination.scroll_into_view_if_needed()
-            time.sleep(0.5)
+            time.sleep(0.2)
             
             next_btn = page.query_selector('a.pagination__link[aria-label="Go to next page"]')
             
@@ -223,7 +223,7 @@ def run():
                     print(f"Error clicking next button: {e}")
                     break
                     
-                time.sleep(random.uniform(2, 4))
+                time.sleep(random.uniform(0.8, 1.5))
                 page.wait_for_selector('table.data-viewer-table')
                 page_num += 1
             else:
