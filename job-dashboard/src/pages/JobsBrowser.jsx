@@ -4,6 +4,7 @@ import MetricsCards from "../components/MetricsCards";
 import JobCard from "../components/JobCard";
 import JobDetailModal from "../components/JobDetailModal";
 import FilterModal from "../components/FilterModal";
+import SortDropdown from "../components/SortDropdown";
 
 export default function JobsBrowser({
   jobs,
@@ -15,6 +16,8 @@ export default function JobsBrowser({
   onClearFilters,
   allSkills,
   allLocations,
+  sortBy,
+  onSortChange,
 }) {
   const [selectedJob, setSelectedJob] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -42,13 +45,13 @@ export default function JobsBrowser({
     filters.levels.length +
     (filters.salaryMin > 0 || filters.salaryMax < 100 ? 1 : 0) +
     (filters.deadlineFilter !== "all" ? 1 : 0) +
-    (filters.maxCompetition < 50 ? 1 : 0);
+    (filters.maxCompetition < 500 ? 1 : 0);
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-6">
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-1">
-          <SearchBar onSearch={onSearchChange} />
+          <SearchBar onSearch={onSearchChange} value={searchQuery} />
         </div>
         <button onClick={() => setShowFilters(true)} className="btn-secondary">
           <svg
@@ -91,13 +94,13 @@ export default function JobsBrowser({
             </span>
           )}
 
-          {filters.maxCompetition < 50 && (
+          {filters.maxCompetition < 500 && (
             <span className="filter-chip">
               &lt;{filters.maxCompetition} apps
               <button
                 onClick={() =>
                   onFilterChange({
-                    maxCompetition: 50,
+                    maxCompetition: 500,
                   })
                 }
               >
@@ -153,6 +156,7 @@ export default function JobsBrowser({
             Showing {paginatedJobs.length} of {totalJobs} jobs (Page{" "}
             {currentPage} of {totalPages || 1})
           </p>
+          <SortDropdown value={sortBy} onChange={onSortChange} />
         </div>
 
         {jobs.length === 0 ? (

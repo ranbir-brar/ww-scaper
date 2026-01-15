@@ -1,0 +1,25 @@
+{
+  "name": "ww-scraper",
+  "version": "1.0.0",
+  "description": "A powerful Python-based scraper and React dashboard to visualize and filter job listings from WaterlooWorks.",
+  "main": "process_jobs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ranbir-brar/ww-scraper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ranbir-brar/ww-scraper/issues"
+  },
+  "homepage": "https://github.com/ranbir-brar/ww-scraper#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "groq-sdk": "^0.37.0"
+  }
+}

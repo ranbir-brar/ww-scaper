@@ -10,14 +10,16 @@ function App() {
   const navigate = useNavigate();
   const [jobs] = useState(jobData.jobs || []);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("deadline");
   const [filters, setFilters] = useState({
     salaryMin: 0,
     salaryMax: 100,
+    showTBDSalary: true,
     skills: [],
     locations: [],
     levels: [],
     deadlineFilter: "all",
-    maxCompetition: 50,
+    maxCompetition: 500,
   });
 
   const debouncedSearch = useMemo(
@@ -61,18 +63,23 @@ function App() {
       );
     }
 
-    if (filters.salaryMin > 0 || filters.salaryMax < 100) {
+    if (
+      filters.salaryMin > 0 ||
+      filters.salaryMax < 100 ||
+      !filters.showTBDSalary
+    ) {
       result = result.filter((job) => {
-        // Always show TBD salary jobs when filtering by salary
-        if (!job.salary) return true;
+        // Handle TBD salary jobs based on toggle
+        if (!job.salary) return filters.showTBDSalary;
+        // Use job's max salary to check against minimum filter threshold
         return (
-          job.salary.min >= filters.salaryMin &&
+          job.salary.max >= filters.salaryMin &&
           job.salary.max <= filters.salaryMax
         );
       });
     }
 
-    if (filters.maxCompetition < 50) {
+    if (filters.maxCompetition < 500) {
       result = result.filter(
         (job) => parseFloat(job.appsPerOpening) <= filters.maxCompetition
       );
@@ -87,10 +94,27 @@ function App() {
       result = result.filter((job) => new Date(job.deadline) <= monthFromNow);
     }
 
-    result.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+    // Apply sorting based on sortBy
+    switch (sortBy) {
+      case "salary":
+        result.sort((a, b) => (b.salary?.avg || 0) - (a.salary?.avg || 0));
+        break;
+      case "competition":
+        result.sort(
+          (a, b) => parseFloat(a.appsPerOpening) - parseFloat(b.appsPerOpening)
+        );
+        break;
+      case "alphabetical":
+        result.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "deadline":
+      default:
+        result.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+        break;
+    }
 
     return result;
-  }, [jobs, searchQuery, filters]);
+  }, [jobs, searchQuery, filters, sortBy]);
 
   const allSkills = useMemo(() => {
     const skillCount = {};
@@ -120,11 +144,12 @@ function App() {
     setFilters({
       salaryMin: 0,
       salaryMax: 100,
+      showTBDSalary: true,
       skills: [],
       locations: [],
       levels: [],
       deadlineFilter: "all",
-      maxCompetition: 50,
+      maxCompetition: 500,
     });
     setSearchQuery("");
   }, []);
@@ -146,7 +171,13 @@ function App() {
           min = parseInt(parts[0]);
           max = parseInt(parts[1]);
         }
-        setFilters((prev) => ({ ...prev, salaryMin: min, salaryMax: max }));
+        // Hide TBD salary jobs when filtering by specific salary range
+        setFilters((prev) => ({
+          ...prev,
+          salaryMin: min,
+          salaryMax: max,
+          showTBDSalary: false,
+        }));
       } else if (filterType === "location") {
         setFilters((prev) => ({ ...prev, locations: [value] }));
       }
@@ -214,6 +245,8 @@ function App() {
               onClearFilters={clearAllFilters}
               allSkills={allSkills}
               allLocations={allLocations}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
             />
           }
         />

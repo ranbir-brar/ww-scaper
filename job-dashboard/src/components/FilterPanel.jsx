@@ -36,7 +36,7 @@ export default function FilterPanel({
     filters.levels.length +
     (filters.salaryMin > 0 || filters.salaryMax < 100 ? 1 : 0) +
     (filters.deadlineFilter !== "all" ? 1 : 0) +
-    (filters.maxCompetition < 50 ? 1 : 0);
+    (filters.maxCompetition < 500 ? 1 : 0);
 
   return (
     <div className="space-y-4">
@@ -98,7 +98,7 @@ export default function FilterPanel({
           <input
             type="range"
             min="0"
-            max="50"
+            max="500"
             value={filters.maxCompetition}
             onChange={(e) =>
               onFilterChange({ maxCompetition: parseInt(e.target.value) })
@@ -106,7 +106,7 @@ export default function FilterPanel({
             className="range-slider flex-1"
           />
           <span className="text-sm text-[var(--color-text-secondary)]">
-            {filters.maxCompetition === 50
+            {filters.maxCompetition === 500
               ? "Any"
               : `≤${filters.maxCompetition}`}
           </span>

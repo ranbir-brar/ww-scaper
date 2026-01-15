@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function SearchBar({ onSearch }) {
-  const [value, setValue] = useState("");
+export default function SearchBar({ onSearch, value: externalValue }) {
+  const [value, setValue] = useState(externalValue || "");
+
+  // Sync with external value when it changes (e.g., when clearing filters)
+  useEffect(() => {
+    if (externalValue !== undefined) {
+      setValue(externalValue);
+    }
+  }, [externalValue]);
 
   const handleChange = (e) => {
     setValue(e.target.value);

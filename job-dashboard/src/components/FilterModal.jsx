@@ -171,6 +171,39 @@ export default function FilterModal({
                   className="flex-1 h-1 bg-[var(--border-dim)] rounded-full appearance-none cursor-pointer accent-[var(--color-primary)]"
                 />
               </div>
+              <label
+                className="flex items-center gap-3 mt-4 cursor-pointer group"
+                onClick={() =>
+                  onFilterChange({ showTBDSalary: !filters.showTBDSalary })
+                }
+              >
+                <div
+                  className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                    filters.showTBDSalary
+                      ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
+                      : "border-[var(--text-muted)] group-hover:border-[var(--text-bright)] bg-[rgba(255,255,255,0.05)]"
+                  }`}
+                >
+                  {filters.showTBDSalary && (
+                    <svg
+                      className="w-3 h-3 text-black"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-sm text-[var(--text-secondary)]">
+                  Show jobs with TBD salary
+                </span>
+              </label>
             </div>
           </section>
 
@@ -332,7 +365,7 @@ export default function FilterModal({
               <input
                 type="range"
                 min="0"
-                max="100"
+                max="500"
                 value={filters.maxCompetition}
                 onChange={(e) =>
                   onFilterChange({ maxCompetition: parseInt(e.target.value) })

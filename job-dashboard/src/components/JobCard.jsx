@@ -34,7 +34,7 @@ function JobCard({ job, searchQuery, onClick }) {
             {highlightText(job.title)}
           </h3>
           <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-            {highlightText(job.organization)}
+            {job.organization}
           </p>
           <p className="text-sm text-[var(--color-text-muted)] mt-1 flex items-center gap-1">
             <span></span> {job.city}
